@@ -551,7 +551,7 @@ handle_mass_storage_mode_status_query( LSHandle* lsh, LSMessage* message, void* 
 } /* handle_mass_storage_mode_status_query */
 
 
-static LSMethod diskModePrivMethods[] = {
+static LSMethod diskModeMethods[] = {
     { "changed", handle_cableLS },   /* notification from udev: cable plugged in */
     { "avail", handle_mount_on_hostLS },       /* kernel set up for disk to be mounted */
     { "busSuspended", handle_bus_suspended },       /* suspend notifications */
@@ -559,11 +559,6 @@ static LSMethod diskModePrivMethods[] = {
     { "hostIsConnected", handle_host_connected_query },       /* support questions about state of USB */
     { "queryMSMStatus", handle_mass_storage_mode_status_query },   /* query if device is in Mass Storage Mode */
     { },
-};
-
-static LSMethod diskModePubMethods[] = {
-    { "queryMSMStatus", handle_mass_storage_mode_status_query },   /* query if device is in Mass Storage Mode */
-    {},
 };
 
 static void mass_storage_mode_state_changed(nyx_device_handle_t handle, nyx_callback_status_t status, void* data)
@@ -577,22 +572,17 @@ static void mass_storage_mode_state_changed(nyx_device_handle_t handle, nyx_call
  * methods.
  */
 int
-DiskModeInterfaceInit(GMainLoop *loop, LSHandle* priv_handle, LSHandle* pub_handle,
-        bool invertCarrier )
+DiskModeInterfaceInit(GMainLoop *loop, LSHandle* lsps, bool invertCarrier )
 {
     LSError lserror;
     LSErrorInit(&lserror);
 
-    if ( !LSRegisterCategory ( priv_handle, "/diskmode", diskModePrivMethods,
+    if ( !LSRegisterCategory ( lsps, "/diskmode", diskModeMethods,
             NULL, NULL, &lserror) )
     {
         LSREPORT( lserror );
     }
-    if ( !LSRegisterCategory ( pub_handle, "/diskmode", diskModePubMethods,
-        NULL, NULL, &lserror) )
-    {
-        LSREPORT( lserror );
-    }
+   
     LSErrorFree( &lserror );
 
     g_debug("%s: starting up", __func__);
@@ -608,7 +598,7 @@ DiskModeInterfaceInit(GMainLoop *loop, LSHandle* priv_handle, LSHandle* pub_hand
 
     // behave like the cable just got plugged in (or unplugged)
     // This ensures we start at the correct state
-    handle_cable( priv_handle, connected);
+    handle_cable( lsps, connected);
     //TODO: handle case where media is exported, but cable is not plugged in.. or media is not exported, but in media mode.
     return 0;
 }
