@@ -16,6 +16,5 @@
 *
 * LICENSE@@@ */
 
-int DiskModeInterfaceInit(GMainLoop *loop, LSHandle* priv_handle, LSHandle* pub_handle,
-                      bool invertCarrier );
+int DiskModeInterfaceInit(GMainLoop *loop, LSHandle* lsps, bool invertCarrier );
 

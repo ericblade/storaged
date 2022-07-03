@@ -31,7 +31,7 @@
  * @param lsps_                   Handle, set earlier via a call to
  *                                LSRegister, with which to register signals
  */
-void SignalsInit( LSPalmService* lsps_ );
+void SignalsInit( LSHandle* lsps_ );
 
 /*
  * These are defined in a .h file so test app can use 'em.... 

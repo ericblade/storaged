@@ -234,7 +234,7 @@ main(int argc, char **argv)
     int opt;
     bool invertCarrier = false;
 
-    LSPalmService * lsps = NULL;
+    LSHandle * lsps = NULL;
 
     while ((opt = getopt(argc, argv, "chdst")) != -1)
     {
@@ -295,7 +295,7 @@ main(int argc, char **argv)
     LSError lserror;
     LSErrorInit(&lserror);
 
-    retVal = LSRegisterPalmService("com.palm.storage", &lsps, &lserror);
+    retVal = LSRegister("com.palm.storage", &lsps, &lserror);
     if (!retVal)
     {
         g_critical ("failed in function %s with erro %s", lserror.func, lserror.message);
@@ -305,32 +305,21 @@ main(int argc, char **argv)
 
     SignalsInit( lsps );
 
-    LSHandle *lsh_priv = LSPalmServiceGetPrivateConnection(lsps);
-    LSHandle *lsh_pub = LSPalmServiceGetPublicConnection(lsps);
+    DiskModeInterfaceInit( g_mainloop, lsps, invertCarrier );
+    EraseInit(g_mainloop, lsps);
 
-    DiskModeInterfaceInit( g_mainloop, lsh_priv, lsh_pub, invertCarrier );
-    EraseInit(g_mainloop, lsh_priv);
-
-    retVal = LSGmainAttach( lsh_priv, g_mainloop, &lserror );
+    retVal = LSGmainAttach( lsps, g_mainloop, &lserror );
     if ( !retVal )
     {
-        g_critical( "LSGmainAttach private returned %s", lserror.message );
+        g_critical( "LSGmainAttach returned %s", lserror.message );
         LSErrorFree(&lserror);
     }
-    retVal = LSGmainAttach( lsh_pub, g_mainloop, &lserror );
-    if ( !retVal )
-    {
-        g_critical( "LSGmainAttach public returned %s", lserror.message );
-        LSErrorFree(&lserror);
-    }
+    
     g_main_loop_run(g_mainloop);
     g_main_loop_unref(g_mainloop);
 
-    if (!LSUnregister( lsh_priv, &lserror)) {
-        g_critical( "LSUnregister private returned %s", lserror.message );
-    }
-    if (!LSUnregister( lsh_pub, &lserror)) {
-        g_critical( "LSUnregister public returned %s", lserror.message );
+    if (!LSUnregister( lsps, &lserror)) {
+        g_critical( "LSUnregister returned %s", lserror.message );
     }
 
     UnlockProcess();

@@ -28,7 +28,7 @@
 
 #define LUNA_STORAGED "luna://com.palm.storage"
 
-static LSPalmService* lsps = NULL;
+static LSHandle* lsps = NULL;
 
 void
 SignalMSMAvailChange( LSHandle* lsh, bool avail )
@@ -152,12 +152,12 @@ SignalPartitionAvail( LSHandle* lsh, const char* mountPoint, bool avail,
     const char* uri = LUNA_STORAGED MSM_CATEGORY "/" MSM_METHOD_PARTAVAIL;
     g_debug( "%s: sending %s to private %s", __func__, payload_private, uri );
 
-    if ( !LSSignalSend( LSPalmServiceGetPrivateConnection(lsps), uri, payload_private, &lserror ) ) {
+    if ( !LSSignalSend(lsps, uri, payload_private, &lserror ) ) {
         LSREPORT(lserror);
     }
 
     g_debug( "%s: sending %s to public %s", __func__, payload_public, uri );
-    if ( !LSSignalSend( LSPalmServiceGetPublicConnection(lsps), uri, payload_public, &lserror ) ) {
+    if ( !LSSignalSend(lsps, uri, payload_public, &lserror ) ) {
         LSREPORT(lserror);
     }
 
@@ -178,12 +178,12 @@ SignalMSMStatus( LSHandle* lsh, bool inMSM)
 	const char* uri = LUNA_STORAGED MSM_CATEGORY "/" MSM_METHOD_STATUS;
 	g_debug( "%s: sending %s to private %s", __func__, payload, uri );
 
-	if ( !LSSignalSend( LSPalmServiceGetPrivateConnection(lsps), uri, payload, &lserror ) ) {
+	if ( !LSSignalSend(lsps, uri, payload, &lserror ) ) {
 			LSREPORT(lserror);
 	}
 
 	g_debug( "%s: sending %s to public %s", __func__, payload, uri );
-	if ( !LSSignalSend( LSPalmServiceGetPublicConnection(lsps), uri, payload, &lserror ) ) {
+	if ( !LSSignalSend(lsps, uri, payload, &lserror ) ) {
 			LSREPORT(lserror);
 	}
 
@@ -204,7 +204,7 @@ static LSSignal signals[] = {
 };
 
 void
-SignalsInit( LSPalmService* lsps_ )
+SignalsInit( LSHandle* lsps_ )
     
 {
     LSError lserror;
@@ -212,8 +212,8 @@ SignalsInit( LSPalmService* lsps_ )
 
     lsps = lsps_;
 
-    if ( !LSPalmServiceRegisterCategory( lsps, MSM_CATEGORY, 
-                              NULL, NULL, signals, NULL, &lserror) ) 
+    if ( !LSRegisterCategory( lsps, MSM_CATEGORY, 
+                              NULL, signals, NULL, &lserror) ) 
     {
         LSREPORT(lserror);
     }
