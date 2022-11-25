@@ -1,5 +1,5 @@
 {
-    "system": [
+    "storaged.operation": [
         "com.palm.storage/diskmode/changed",
         "com.palm.storage/diskmode/avail",
         "com.palm.storage/diskmode/enterMSM",

@@ -1,7 +1,6 @@
 {
     "com.palm.storage": [ 
-        "system",
-        "settings"
+        "storaged.operation"
     ]
 }
 

@@ -1,5 +1,6 @@
 {
     "exeName":"@WEBOS_INSTALL_SBINDIR@/storaged",
+    "trustLevel": "oem",
     "type": "regular",
     "allowedNames": ["com.palm.storage"],
     "permissions": [
