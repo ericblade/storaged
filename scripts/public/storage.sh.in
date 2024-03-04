@@ -27,34 +27,40 @@ ErrPrint() {
     logger -t udev_storaged -p err "$@"
 }
 
-DbgPrint "$0($1,$2) called: "
+DbgPrint "$0($1,$2,$3,$4,$5) called: "
 
-action="$1"
-change="$2"
+ACTION="$1"
+MEDIA_LOADED="$2"
+HOST_CONNECTED="$3"
+MEDIA_REQUESTED="$4"
+BUS_SUSPENDED="$5"
+CHANGE="${MEDIA_LOADED}${HOST_CONNECTED}${MEDIA_REQUESTED}${BUS_SUSPENDED}"
 
-if [ "$action" == "HOST_STATE_CHANGED" ]; then
+if [ "$ACTION" == "HOST_STATE_CHANGED" ]; then
     method="changed"
     change_name="connected"
-elif [ "$action" == "MEDIA_STATE_CHANGED" ]; then
+elif [ "$ACTION" == "MEDIA_STATE_CHANGED" ]; then
     method="avail"
     change_name="connected"
-elif [ "$action" == "MEDIA_REQUEST_STATE_CHANGED" ]; then
+elif [ "$ACTION" == "MEDIA_REQUEST_STATE_CHANGED" ]; then
     method="requestMedia"
     change_name="connected"
-elif [ "$action" == "BUS_STATE_CHANGED" ]; then
+elif [ "$ACTION" == "BUS_STATE_CHANGED" ]; then
     method="busSuspended"
     change_name="suspended"
 else
-    ErrPrint "unknown action $action passed to $0"
+    ErrPrint "unknown action $ACTION passed to $0"
     return
 fi
 
-if [ "$change" == "0" ]; then
+# TODO: If more than one of the change variables is set, this script will not know how to deal with it.  It never has known, though.
+# Probably need to check with a Legacy webOS device, to see how it handled this situation, and model something after that.
+if [ "$CHANGE" == "0" ]; then
     MESSAGE="{\"$change_name\": false}"
-elif [ "$change" == "1" ]; then
+elif [ "$CHANGE" == "1" ]; then
     MESSAGE="{\"$change_name\": true}"
 else
-    ErrPrint "unexpected change $change passed to $0"
+    ErrPrint "unexpected change $CHANGE passed to $0"
     return
 fi
 
